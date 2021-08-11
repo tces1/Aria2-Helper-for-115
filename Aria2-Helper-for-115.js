@@ -12,7 +12,7 @@
 // @grant        unsafeWindow
 // @license      MIT
 // @connect      *
-// @require      https://greasyfork.org/scripts/425266-jsencrypt-2-3-0-115/code/jsencrypt@230_115.js?version=923588
+// @require      https://raw.githubusercontent.com/tces1/Aria2-Helper-for-115/main/jsencrypt.js
 // @require      https://cdn.bootcdn.net/ajax/libs/blueimp-md5/2.18.0/js/md5.min.js
 // @run-at       document-end
 // @namespace    https://greasyfork.org/users/373796
