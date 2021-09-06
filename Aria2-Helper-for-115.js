@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         115 网盘 Aria2 助手
 // @version      0.2.1
-// @description  直接将所选 115 下载链接发送至 Aria2
+// @description  直接将所选 115 下载链接发送至 Aria2, Github不常看，有建议去电报 https://t.me/joinchat/rXWdaas4CIUwNmY1
 // @author       tces1
 // @match        *://115.com/?ct=file*
 // @encoding     utf-8
