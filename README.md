@@ -1,6 +1,8 @@
 # Aria2-Helper-for-115
 
-### 本人没有qq，所有群与本人无关，你们交流我也不反对，只是提醒一句谨防被骗。Github回复慢，有问题去电报 https://t.me/joinchat/rXWdaas4CIUwNmY1
+### 本人没有qq，所有Q群与本人无关，提醒一句谨防被骗。
+### 115会员到期，今年不买了，山高路远，后会无期
+### 将来如果更新会通知在tg公告板https://t.me/joinchat/fqZIrOHyTcY1NzI1
 
 ### 主要功能
 * 免115浏览器下载大文件
