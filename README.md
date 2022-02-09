@@ -1,8 +1,8 @@
 # Aria2-Helper-for-115
 
 ### 本人没有qq，所有Q群与本人无关，提醒一句谨防被骗。
-### 115会员到期，今年不买了，山高路远，后会无期
-### 将来如果更新会通知在tg公告板https://t.me/joinchat/fqZIrOHyTcY1NzI1
+### 115会员到期，转阿里家，山高路远，后会无期
+### 请帮我点一个免费的推广 https://t.me/FreeSGKbot?start=SGKTIEJFOD
 
 ### 主要功能
 * 免115浏览器下载大文件
