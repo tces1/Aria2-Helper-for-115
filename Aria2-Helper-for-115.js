@@ -28,6 +28,7 @@
 // @inspiredBy   https://github.com/robbielj/chrome-aria2-integration
 // @inspiredBy   https://github.com/kkHAIKE/fake115
 // @inspiredBy   https://github.com/QuChao/Watsilla
+// @inspiredBy   https://gist.github.com/showmethemoney2022/430ef0e45eeb7c99fedda2d2585cfe2e
 /* jshint -W097 */
 'use strict';
  
