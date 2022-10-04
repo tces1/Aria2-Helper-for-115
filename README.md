@@ -1,7 +1,6 @@
 # Aria2-Helper-for-115
 
-### 本人没有qq，所有Q群与本人无关，提醒一句谨防被骗。
-### 115会员到期，转阿里家，山高路远，后会无期
+### Fork大佬的脚本，只更新了加密算法，尽量做到原汁原味！js抄抄改改还能勉强应付，后续更新无力，随缘吧，且用且珍惜！
 
 ### 主要功能
 * 免115浏览器下载大文件
@@ -28,9 +27,9 @@ let Configs = {
     'debug_mode'    : true, // 是否开启调试模式
     "sync_clipboard": true, // 是否将下载链接同步到剪贴板，部分浏览器（如 Safari ）不支持
     'use_http'      : false, // 115 下载链接是否从 https 转换为 http （老版本 Aria2 需要）
-    "rpc_path"      : 'http://localhost:6800/jsonrpc', // RPC 地址
+    "rpc_path"      : 'http://你的ip或域名:你的rpc端口/jsonrpc', // RPC 地址
     "rpc_user"      : '', // RPC 用户名（若设置密码，请填写至 token 项）
-    "rpc_token"     : '', // RPC Token ，v1.18.4+ 支持，与用户名认证方式互斥
+    "rpc_token"     : '你的token', // RPC Token ，v1.18.4+ 支持，与用户名认证方式互斥
     "notification"  : true, // 是否开启推送通知
 };
 ```
