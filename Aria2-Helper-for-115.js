@@ -13,7 +13,7 @@
 // @license      MIT
 // @connect      *
 // @require      https://cdn.bootcdn.net/ajax/libs/blueimp-md5/2.18.0/js/md5.min.js
-// @require      https://peterolson.github.io/BigInteger.js/BigInteger.min.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/big-integer/1.6.51/BigInteger.min.js
 // @run-at       document-end
 // @namespace    https://greasyfork.org/users/373796
 // ==/UserScript==
