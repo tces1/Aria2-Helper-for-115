@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name         115 网盘 Aria2 助手
 // @version      0.2.2
-// @description  直接将所选 115 下载链接发送至 Aria2, Github不常看，有建议去电报 https://t.me/joinchat/rXWdaas4CIUwNmY1
+
+// @description  直接将所选 115 下载链接发送至 Aria2
 // @author       tces1
 // @match        *://115.com/?ct=file*
 // @encoding     utf-8
@@ -12,6 +13,7 @@
 // @grant        unsafeWindow
 // @license      MIT
 // @connect      *
+
 // @require      https://cdn.bootcdn.net/ajax/libs/big-integer/1.6.51/BigInteger.min.js
 // @require      https://cdn.bootcdn.net/ajax/libs/blueimp-md5/2.18.0/js/md5.min.js
 // @run-at       document-end
@@ -31,17 +33,18 @@
 // @inspiredBy   https://gist.github.com/showmethemoney2022/430ef0e45eeb7c99fedda2d2585cfe2e
 /* jshint -W097 */
 'use strict';
- 
+
 // Configs
 let Configs = {
     'debug_mode': true, // 是否开启调试模式
     "sync_clipboard": false, // 是否将下载链接同步到剪贴板，部分浏览器（如 Safari ）不支持
     'use_http': false, // 115 下载链接是否从 https 转换为 http （老版本 Aria2 需要）
-    "rpc_path": 'http://localhost:6800/jsonrpc', // RPC 地址
+    "rpc_path": 'http://你的域名:你的端口/jsonrpc', // RPC 地址
     "rpc_user": '', // RPC 用户名（若设置密码，请填写至 token 项）
-    "rpc_token": '', // RPC Token ，v1.18.4+ 支持，与用户名认证方式互斥
+    "rpc_token": '你的token', // RPC Token ，v1.18.4+ 支持，与用户名认证方式互斥
     "notification": true, // 是否开启推送通知
 };
+
 
 // Crypto
 class MyRsa {
@@ -254,7 +257,7 @@ let crypto_115 = new Crypto115();
 // Debug Func
 let debug = Configs.debug_mode ? GM_log : function () {};
 let emptyFunc = function () {};
- 
+
 let _notification = function (msg) {
     if (Configs.notification) {
         GM_notification({
@@ -263,24 +266,24 @@ let _notification = function (msg) {
         })
     }
 }
- 
+
 // Aria2RPC
 let GLOBAL_OPTION = {}
 let Aria2RPC = (function ($win, $doc) {
     // privates
- 
+
     // getGlobalOption
     function _getGlobalOption() {
         let rpcHeaders = {
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         };
- 
+
         // auth method, pt.1
         if ('' !== Configs.rpc_user) {
             // user/password
             rpcHeaders['Authorization'] = 'Basic ' + $win.btoa(Configs.rpc_user + ':' + Configs.rpc_token);
         }
- 
+
         return function (loadHandler, errorHandler) {
             // new task
             let reqParams = {
@@ -289,14 +292,14 @@ let Aria2RPC = (function ($win, $doc) {
                 'id': (+new Date()).toString(),
                 'params': [],
             };
- 
+
             // auth method, pt.2
             if ('' === Configs.rpc_user && '' !== Configs.rpc_token) {
                 // secret, since v1.18.4
                 reqParams.params.unshift('token:' + Configs.rpc_token);
             }
             debug(reqParams)
- 
+
             // send to aria2, @todo: support metalink?
             GM_xmlhttpRequest({
                 method: 'POST',
@@ -308,19 +311,19 @@ let Aria2RPC = (function ($win, $doc) {
             });
         };
     }
- 
+
     // send
     function _addTask() {
         let rpcHeaders = {
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         };
- 
+
         // auth method, pt.1
         if ('' !== Configs.rpc_user) {
             // user/password
             rpcHeaders['Authorization'] = 'Basic ' + $win.btoa(Configs.rpc_user + ':' + Configs.rpc_token);
         }
- 
+
         return function (link, options, loadHandler, errorHandler) {
             // new task
             let reqParams = {
@@ -329,13 +332,13 @@ let Aria2RPC = (function ($win, $doc) {
                 'id': (+new Date()).toString(),
                 'params': [],
             };
- 
+
             // auth method, pt.2
             if ('' === Configs.rpc_user && '' !== Configs.rpc_token) {
                 // secret, since v1.18.4
                 reqParams.params.unshift('token:' + Configs.rpc_token);
             }
- 
+
             // download link
             if ('undefined' !== typeof link) {
                 // @todo: multiple sources?
@@ -345,7 +348,7 @@ let Aria2RPC = (function ($win, $doc) {
                 //errorHandler({});
                 return;
             }
- 
+
             // options
             if ('undefined' !== typeof options) {
                 reqParams.params.push(options);
@@ -362,14 +365,14 @@ let Aria2RPC = (function ($win, $doc) {
             });
         };
     }
- 
+
     return {
         // public
         add: _addTask(),
         getGlobalOption: _getGlobalOption(),
     };
 })(unsafeWindow, unsafeWindow.document);
- 
+
 // Direct download
 let DirectDownload = (function ($win, $doc) {
     // send
@@ -396,8 +399,7 @@ let DirectDownload = (function ($win, $doc) {
         add: _addTask(),
     };
 })(unsafeWindow, unsafeWindow.document);
- 
- 
+
 // Queue Manager
 let QueueManager = (function ($win, $doc) {
     // constants
@@ -411,18 +413,18 @@ let QueueManager = (function ($win, $doc) {
     const STATUS_LINK_FETCH_FAILURE = -2;
     const STATUS_GET_SUB_DIR_FAILURE = -5;
     const STATUS_GET_SUB_FILE_FAILURE = -6;
- 
+
     // constructor
     function Mgr(options) {
         // options
         this.options = Mgr.validateOptions(options);
- 
+
         // err msgs
         this.errMsgs = [];
- 
+
         // get selected ones
         let selectedNodes = $doc.getElementById('js_cantain_box').querySelectorAll('li.selected');
- 
+
         // build the queue
         this.queue = Array.from(selectedNodes).map(function (node) {
             return {
@@ -435,7 +437,7 @@ let QueueManager = (function ($win, $doc) {
             };
         }, this);
     }
- 
+
     // static
     Mgr.defaultOptions = {
         'copyOnly': false,
@@ -456,17 +458,17 @@ let QueueManager = (function ($win, $doc) {
                 throw Error('Invalid option type: ' + key);
             }
         }
- 
+
         // merge the options
         return Object.assign({}, Mgr.defaultOptions, options);
     };
- 
+
     // methods
     Mgr.prototype.errorHandler = function (errCode, idx, resp) {
         this.errMsgs.push('File #' + idx + ': ');
         this.errMsgs.push("\t" + 'File Info: ' + JSON.stringify(this.queue[idx]));
         this.errMsgs.push("\t" + 'HTTP Status: ' + resp.status + ' - ' + resp.statusText);
- 
+
         let errMsg = 'Unknown';
         if ('responseText' in resp) {
             try {
@@ -478,9 +480,9 @@ let QueueManager = (function ($win, $doc) {
         } else if ('msg' in resp) {
             errMsg = resp.msg;
         }
- 
+
         this.errMsgs.push("\t" + 'Err Msg:' + errMsg);
- 
+
         // update the status
         this.queue[idx].status = errCode;
         this.next();
@@ -524,7 +526,7 @@ let QueueManager = (function ($win, $doc) {
             );
         }
     };
- 
+
     Mgr.prototype.getSubDirsHandler = function (idx, page, raw_resp) {
         let resp = JSON.parse(raw_resp.responseText);
         if (!resp.state) {
@@ -551,8 +553,8 @@ let QueueManager = (function ($win, $doc) {
             this.getSubFiles(idx, 1)
         }
     };
- 
- 
+
+
     Mgr.prototype.getSubDirs = function (idx, page = 1) {
         request = (idx, page, onload, onerror) => {
             tmus = (new Date()).getTime();
@@ -575,7 +577,7 @@ let QueueManager = (function ($win, $doc) {
             this.errorHandler.bind(this, STATUS_GET_SUB_DIR_FAILURE, idx),
         )
     }
- 
+
     Mgr.prototype.getSubFilesHandler = function (idx, page, raw_resp) {
         let resp = JSON.parse(raw_resp.responseText);
         if (!resp.state) {
@@ -609,8 +611,8 @@ let QueueManager = (function ($win, $doc) {
             this.fetchLink(idx)
         }
     };
- 
- 
+
+
     Mgr.prototype.getSubFiles = function (idx, page = 1) {
         request = (idx, page, onload, onerror) => {
             tmus = (new Date()).getTime();
@@ -633,8 +635,8 @@ let QueueManager = (function ($win, $doc) {
             this.errorHandler.bind(this, STATUS_GET_SUB_FILE_FAILURE, idx),
         )
     }
- 
- 
+
+
     Mgr.prototype.fetchLinkHandler = function (idx, key, raw_resp) {
         let resp = JSON.parse(raw_resp.responseText);
         if (!resp.state) {
@@ -643,14 +645,14 @@ let QueueManager = (function ($win, $doc) {
         } else {
             resp_data = JSON.parse(crypto_115.m115_decode(resp.data, key))
         }
- 
+
         final_cookie = document.cookie
         resp = {}
         for (let i in resp_data) {
             resp = resp_data[i];
             break;
         }
- 
+
         if ('url' in resp && 'url' in resp.url) {
             // update the link
             this.queue[idx].link = Configs.use_http ?
@@ -664,8 +666,8 @@ let QueueManager = (function ($win, $doc) {
             this.errorHandler.call(this, STATUS_LINK_FETCH_FAILURE, idx, resp);
         }
     };
- 
- 
+
+
     Mgr.prototype.fetchLink = function (idex_o = 0) {
         for (let idx = idex_o; idx < this.queue.length; idx++) {
             if (this.queue[idx].status === STATUS_UNSTART) {
@@ -694,7 +696,7 @@ let QueueManager = (function ($win, $doc) {
             }
         }
     };
- 
+
     Mgr.prototype.init = function () {
         // fetch link in parallel
         debug("Init queue:", this.queue)
@@ -702,7 +704,7 @@ let QueueManager = (function ($win, $doc) {
         this.FILE_TREE = []
         this.fetchLink();
     }
- 
+
     Mgr.prototype.next = function () {
         // check if it's the queue is empty
         let nextIdx = this.queue.findIndex(function (file) {
@@ -728,7 +730,7 @@ let QueueManager = (function ($win, $doc) {
                         accumulator.dir += 1;
                         break;
                 }
- 
+
                 return accumulator;
             }, {
                 'links': [],
@@ -737,7 +739,7 @@ let QueueManager = (function ($win, $doc) {
             });
             let queueSize = this.queue.length - report.dir;
             let msg = [];
- 
+
             msg.push('所选 ' + queueSize + ' 项已处理完毕：');
             if (!this.options.copyOnly) {
                 if (report.finished == 0) {
@@ -759,23 +761,23 @@ let QueueManager = (function ($win, $doc) {
                     prompt('本浏览器不支持访问剪贴板，请手动全选复制', downloadLinks);
                 }
             }
- 
+
             if (this.errMsgs.length) {
                 throw Error(this.errMsgs.join("\n"));
             }
         }
     };
- 
+
     return Mgr;
 })(unsafeWindow, unsafeWindow.document);
- 
+
 // UI Helper
 let UiHelper = (function ($win, $doc) {
     // privates
     let _triggerId = 'aria2Trigger';
- 
+
     function _clickHandler(evt) {
- 
+
         (new QueueManager({
             'directDownload': (evt.ctrlKey || evt.metaKey) && !evt.altKey,
             'copyOnly': evt.altKey && !evt.ctrlKey && !evt.metaKey,
@@ -783,11 +785,11 @@ let UiHelper = (function ($win, $doc) {
         console.log("evt: ", evt)
         console.log('directDownload', (evt.ctrlKey || evt.metaKey) && !evt.altKey)
         console.log('copyOnly', evt.altKey && !evt.ctrlKey && !evt.metaKey)
- 
+
         // kill the listener
         evt.target.removeEventListener('click', _clickHandler, false);
     }
- 
+
     function _recordHandler(record) {
         // place the trigger
         let ariaTrigger = $doc.createElement('li');
@@ -799,17 +801,17 @@ let UiHelper = (function ($win, $doc) {
         record.target.childNodes[1].setAttribute("style", "display:none;")
         // make it clickable
         ariaTrigger.addEventListener('click', _clickHandler, false);
- 
+
         // stop the observation
         //_observer.disconnect();
- 
+
         return true;
     }
- 
+
     // initialization
     function _init() {
         let container = $doc.getElementById('js_operate_box');
- 
+
         // create a observer on the container
         new MutationObserver(function (records) {
             records.filter(function () {
@@ -829,12 +831,12 @@ let UiHelper = (function ($win, $doc) {
             undefined
         )
     }
- 
+
     return {
         // public
         init: _init
     };
 })(unsafeWindow, unsafeWindow.document);
- 
+
 // fire
 UiHelper.init();
